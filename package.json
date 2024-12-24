@@ -10,7 +10,7 @@
     "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
     "docker:restart": "docker compose -f docker/docker-compose.yml restart",
     "docker": "yarn docker:build && yarn docker:up",
-    "release": "docker compose -f docker/docker-compose.yml up -d"
+    "release": "docker compose -f docker/docker-compose.production.yml up -d"
   },
   "keywords": [],
   "author": "",
