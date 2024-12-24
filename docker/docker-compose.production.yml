@@ -23,7 +23,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - portainer-data:/data
     ports:
-      - "9000:9000"
+      - "9999:9000"
     networks:
       - cme-network
     deploy:
