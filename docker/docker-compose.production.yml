@@ -190,7 +190,6 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - cme-app
       - cme-bff
       - cme-media
       - cme-main
