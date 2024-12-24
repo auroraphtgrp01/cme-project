@@ -12,6 +12,29 @@ networks:
           gateway: 172.29.0.1
 
 services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer-data:/data
+    ports:
+      - "9000:9000"
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
   cme-bff:
     image: auroraphtgrp/cme-bff:latest
     container_name: cme-bff-3027
@@ -204,4 +227,6 @@ volumes:
   zookeeper-data:
     driver: local
   kafka-data:
+    driver: local
+  portainer-data:
     driver: local
