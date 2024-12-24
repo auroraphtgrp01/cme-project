@@ -1,0 +1,223 @@
+version: '3.9'
+
+networks:
+  cme-network:
+    name: 'cme-network'
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.29.0.0/16
+          ip_range: 172.29.0.0/24
+          gateway: 172.29.0.1
+
+services:
+  cme-bff:
+    build:
+      context: ../cme-bff
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    container_name: cme-bff-3027
+    env_file:
+      - ../cme-bff/.env.docker
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - zookeeper
+    ports:
+      - '3027:3027'
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
+  cme-media:
+    build:
+      context: ../cme-media
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    container_name: cme-media-6028
+    env_file:
+      - ../cme-media/.env.docker
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - zookeeper
+    ports:
+      - '6028:6028'
+    volumes:
+      - ../resources:/app/resources
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
+  cme-main:
+    build:
+      context: ../cme-main
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    container_name: cme-main-3099
+    env_file:
+      - ../cme-main/.env.docker
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - zookeeper
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
+  cme-app:
+    build:
+      context: ../cme-app
+      dockerfile: Dockerfile
+    container_name: cme-app-80
+    ports:
+      - "80:80"
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: cme-postgres-5432
+    volumes:
+      - postgres-data:/bitnami/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
+  redis:
+    container_name: cme-redis-6379
+    image: bitnami/redis:latest
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_PASSWORD: your_password_here
+    volumes:
+      - redis-data:/bitnami/redis
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    container_name: "cme-zookeeper-2181"
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-data:/bitnami/zookeeper
+    networks:
+      - cme-network
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: "cme-kafka-9092"
+    ports:
+      - 9092:9092
+      - 9093:9093
+    networks:
+      - cme-network
+    volumes:
+      - kafka-data:/bitnami/kafka
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,PLAINTEXT_HOST://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://cme-kafka-9092:9092,PLAINTEXT_HOST://localhost:9093
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=cme-zookeeper-2181:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS=3000
+      - KAFKA_CFG_GROUP_MIN_SESSION_TIMEOUT_MS=6000
+      - KAFKA_CFG_GROUP_MAX_SESSION_TIMEOUT_MS=300000
+      - KAFKA_CFG_CONNECTIONS_MAX_IDLE_MS=600000
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  zookeeper-data:
+    driver: local
+  kafka-data:
+    driver: local
