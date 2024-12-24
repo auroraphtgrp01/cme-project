@@ -1,0 +1,16 @@
+# Cấu hình chung cho tất cả các bot
+User-agent: *
+Disallow: /search
+Disallow: /search?*
+
+# Cấu hình cho AdsBot-Google (Google Ads)
+User-agent: AdsBot-Google
+Disallow: /search
+Disallow: /search?*
+
+# Cho phép facebookexternalhit quét tất cả trang (Facebook bot)
+User-agent: facebookexternalhit
+Disallow:
+
+# Sitemap
+Sitemap: https://hoclientuc.vn/sitemap_index.xml

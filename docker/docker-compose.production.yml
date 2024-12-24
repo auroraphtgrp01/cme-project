@@ -84,23 +84,6 @@ services:
           memory: 512M
     restart: unless-stopped
 
-  cme-app:
-    image: auroraphtgrp/cme-app:latest
-    container_name: cme-app-80
-    ports:
-      - "80:80"
-    networks:
-      - cme-network
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-    restart: unless-stopped
-
   postgres:
     image: bitnami/postgresql:latest
     container_name: cme-postgres-5432
