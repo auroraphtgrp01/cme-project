@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 
 const USERNAME = 'auroraphtgrp';
-const SERVICES = ['cme-bff', 'cme-main', 'cme-media'];
+const SERVICES = ['cme-bff', 'cme-main', 'cme-media', 'cme-app'];
 
 // Get root directory path
 const rootDir = path.resolve(__dirname, '..');

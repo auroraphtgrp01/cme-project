@@ -9,7 +9,8 @@
     "docker:down": "docker compose -f docker/docker-compose.yml down",
     "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
     "docker:restart": "docker compose -f docker/docker-compose.yml restart",
-    "docker": "yarn docker:build && yarn docker:up"
+    "docker": "yarn docker:build && yarn docker:up",
+    "release": "docker compose -f docker/docker-compose.yml up -d"
   },
   "keywords": [],
   "author": "",
