@@ -11,8 +11,8 @@
     "docker:restart": "docker compose -f docker/docker-compose.yml restart",
     "docker": "yarn docker:build && yarn docker:up",
     "release": "docker compose -f docker/docker-compose.production.yml up -d",
-    "release:down": "docker compose -f docker/docker-compose.production.yml down"
-
+    "release:down": "docker-compose -f docker/docker-compose.production.yml down"
+    
   },
   "keywords": [],
   "author": "",
