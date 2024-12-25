@@ -223,6 +223,21 @@ services:
   #     - cme-main
   #   networks:
   #     - cme-network
+
+  app:
+    container_name: nginx-proxy-manager
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - cme-network
+
 volumes:
   postgres-data:
     driver: local
