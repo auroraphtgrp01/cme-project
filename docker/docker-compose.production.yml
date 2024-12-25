@@ -215,6 +215,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:rw
       - ./nginx/conf.d:/etc/nginx/conf.d:rw
       - ./release/app:/H/CME/release/app:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
     depends_on:
       - cme-bff
       - cme-media
