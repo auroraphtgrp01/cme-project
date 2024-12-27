@@ -69,6 +69,7 @@ services:
       - postgres
       - redis
       - kafka
+      - cme-bff
       - zookeeper
     ports:
       - '6028:6028'
@@ -96,6 +97,7 @@ services:
       - redis
       - kafka
       - zookeeper
+      - cme-bff
     networks:
       - cme-network
     deploy:
@@ -204,25 +206,6 @@ services:
           cpus: '0.5'
           memory: 512M
     restart: unless-stopped
-
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: nginx-proxy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"    
-  #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #     - ./nginx/conf.d:/etc/nginx/conf.d:rw
-  #     - ./release/app:/H/CME/release/app:ro
-  #     - ./certbot/conf:/etc/letsencrypt:ro
-  #   depends_on:
-  #     - cme-bff
-  #     - cme-media
-  #     - cme-main
-  #   networks:
-  #     - cme-network
 
 volumes:
   postgres-data:
