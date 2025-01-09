@@ -1,5 +1,3 @@
-version: '3.9'
-
 networks:
   cme-network:
     name: 'cme-network'
@@ -207,24 +205,26 @@ services:
           memory: 512M
     restart: unless-stopped
 
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: nginx-proxy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"    
-  #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #     - ./nginx/conf.d:/etc/nginx/conf.d:rw
-  #     - ./release/app:/H/CME/release/app:ro
-  #     - /etc/letsencrypt:/etc/letsencrypt:ro
-  #   depends_on:
-  #     - cme-bff
-  #     - cme-media
-  #     - cme-main
-  #   networks:
-  #     - cme-network
+  backup-uploader:
+    container_name: backup-uploader
+    image: auroraphtgrp/backup-cronjob:latest
+    build: .
+    volumes:
+      - ./backups:/app/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./token/token.pickle:/app/token/token.pickle
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - GOOGLE_CLIENT_ID=473025190767-jfiu1ci28c9jr97r015s8ngm5utnktrp.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      - FOLDER_DRIVE=CME_Database_Backups
+      - DB_HOST=postgres
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - CONTAINER_NAME=cme-postgres-5432
+    restart: unless-stopped
+    network_mode: "host"
 
 volumes:
   postgres-data:
