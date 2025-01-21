@@ -12,7 +12,9 @@
     "docker": "yarn docker:build && yarn docker:up",
     "release": "docker compose -f docker/docker-compose.production.yml up -d",
     "release:down": "docker compose -f docker/docker-compose.production.yml down",
-    "clean-images": "docker compose -f docker/docker-compose.production.yml down && docker rmi auroraphtgrp/cme-main:latest auroraphtgrp/cme-bff:latest auroraphtgrp/cme-media:latest"
+    "clean-images": "docker compose -f docker/docker-compose.production.yml down && docker rmi auroraphtgrp/cme-main:latest auroraphtgrp/cme-bff:latest auroraphtgrp/cme-media:latest",
+    "clean": "docker compose -f docker/docker-compose.production.yml down && docker volume rm docker_kafka-data docker_zookeeper-data && docker compose -f docker/docker-compose.production.yml up -d",
+    "reinstall": "docker compose -f docker/docker-compose.production.yml down && docker volume rm docker_kafka-data docker_zookeeper-data && docker rmi auroraphtgrp/cme-main:latest auroraphtgrp/cme-bff:latest auroraphtgrp/cme-media:latest && docker compose -f docker/docker-compose.production.yml up -d"
     
   },
   "keywords": [],
