@@ -166,6 +166,7 @@ services:
       - ZOO_INIT_LIMIT=10
       - ZOO_SYNC_LIMIT=5
       - ZOO_MAX_CLIENT_CNXNS=60
+      - JVMFLAGS=-Xmx256m -Xms128m
     healthcheck:
       test: [ "CMD", "nc", "-z", "localhost", "2181" ]
       interval: 30s
@@ -174,11 +175,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 768M
-        reservations:
-          cpus: '0.25'
+          cpus: '0.3'
           memory: 384M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
     restart: unless-stopped
 
   kafka:
@@ -213,6 +214,7 @@ services:
       - KAFKA_CFG_COMPRESSION_TYPE=gzip
       - KAFKA_CFG_SOCKET_REQUEST_MAX_BYTES=104857600
       - KAFKA_CFG_MAX_REQUEST_SIZE=10485760
+      - KAFKA_HEAP_OPTS=-Xmx512m -Xms256m
     healthcheck:
       test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list" ]
       interval: 30s
@@ -221,11 +223,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 1.5G
-        reservations:
           cpus: '0.5'
           memory: 768M
+        reservations:
+          cpus: '0.2'
+          memory: 512M
     restart: unless-stopped
 
   backup-uploader:
