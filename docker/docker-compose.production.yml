@@ -33,6 +33,81 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+
+  cme-bff:
+    image: auroraphtgrp/cme-bff:latest
+    container_name: cme-bff-3027
+    env_file:
+      - ./release/bff/.env.docker
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - zookeeper
+    ports:
+      - '3027:3027'
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
+  cme-media:
+    image: auroraphtgrp/cme-media:latest
+    container_name: cme-media-6028
+    env_file:
+      - ./release/media/.env.docker
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - cme-bff
+      - zookeeper
+    ports:
+      - '6028:6028'
+    volumes:
+      - ../resources:/app/resources
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
+  cme-main:
+    image: auroraphtgrp/cme-main:latest
+    container_name: cme-main-3099
+    env_file:
+      - ./release/main/.env.docker
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - zookeeper
+      - cme-bff
+    networks:
+      - cme-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+
   postgres:
     image: bitnami/postgresql:latest
     container_name: cme-postgres-5432
@@ -126,39 +201,54 @@ services:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=cme-zookeeper-2181:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      - KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS=3000
+      - KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS=5000
       - KAFKA_CFG_GROUP_MIN_SESSION_TIMEOUT_MS=6000
-      - KAFKA_CFG_GROUP_MAX_SESSION_TIMEOUT_MS=60000
-      - KAFKA_CFG_CONNECTIONS_MAX_IDLE_MS=300000
+      - KAFKA_CFG_GROUP_MAX_SESSION_TIMEOUT_MS=300000
+      - KAFKA_CFG_CONNECTIONS_MAX_IDLE_MS=600000
       - KAFKA_CFG_MESSAGE_MAX_BYTES=10485760
       - KAFKA_CFG_REPLICA_FETCH_MAX_BYTES=10485760
-      - KAFKA_CFG_NUM_PARTITIONS=1
+      - KAFKA_CFG_NUM_PARTITIONS=3
       - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=1
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_CFG_COMPRESSION_TYPE=gzip
       - KAFKA_CFG_SOCKET_REQUEST_MAX_BYTES=104857600
       - KAFKA_CFG_MAX_REQUEST_SIZE=10485760
-      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
-      - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=1
-      - KAFKA_CFG_LOG_FLUSH_INTERVAL_MESSAGES=10000
-      - KAFKA_CFG_LOG_FLUSH_INTERVAL_MS=1000
-      - KAFKA_CFG_MIN_INSYNC_REPLICAS=1
     healthcheck:
-      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1" ]
-      interval: 10s
+      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list" ]
+      interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 30s
+      retries: 3
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 1.5G
+          cpus: '2'
+          memory: 2G
         reservations:
-          cpus: '0.5'
-          memory: 512M
+          cpus: '1'
+          memory: 1G
     restart: unless-stopped
+
+  backup-uploader:
+    container_name: backup-uploader
+    image: auroraphtgrp/backup-cronjob:latest
+    build: .
+    volumes:
+      - ./backups:/app/backups
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./token/token.pickle:/app/token/token.pickle
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - GOOGLE_CLIENT_ID=473025190767-jfiu1ci28c9jr97r015s8ngm5utnktrp.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      - FOLDER_DRIVE=CME_Database_Backups
+      - DB_HOST=postgres
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - CONTAINER_NAME=cme-postgres-5432
+    restart: unless-stopped
+    network_mode: "host"
+
 volumes:
   postgres-data:
     driver: local
