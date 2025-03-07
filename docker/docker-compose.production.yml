@@ -77,7 +77,7 @@ services:
     restart: unless-stopped
 
   zookeeper:
-    image: 'bitnami/zookeeper:3.9'
+    image: 'bitnami/zookeeper:3.9.3'
     container_name: "cme-zookeeper-2181"
     ports:
       - "2181:2181"
