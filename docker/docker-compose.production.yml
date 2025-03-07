@@ -77,7 +77,7 @@ services:
     restart: unless-stopped
 
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
+    image: 'bitnami/zookeeper:3.9'
     container_name: "cme-zookeeper-2181"
     ports:
       - "2181:2181"
@@ -107,7 +107,7 @@ services:
     restart: unless-stopped
 
   kafka:
-    image: bitnami/kafka:latest
+    image: bitnami/kafka:3.8.1
     container_name: "cme-kafka-9092"
     depends_on:
       zookeeper:
